@@ -1,8 +1,23 @@
 {
     "dev" : {
+        "db": {
+            "host"            : "localhost",
+            "port"            : "3306",
+            "user"            : "ejico",
+            "password"        : "ejico18",
+            "database"        : "eventjoin_ico"
+        },
         "port": "3000"
     },
     "prod" : {
+        "db": {
+            "connectionLimit" : "---",
+            "host"            : "---",
+            "port"            : "0000",
+            "user"            : "---",
+            "password"        : "---",
+            "database"        : "---"
+        },
         "port": "0000"
     }
 }        
