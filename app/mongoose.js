@@ -10,12 +10,12 @@ mongoose.connection.on('error', (err) => {
 });
 
 
-exports.addSubscription = (name, email, successCb, errorCb) => {
+exports.addSubscription = (name, email, locale, successCb, errorCb) => {
     const subscription = new Subscription({
         name: name,
-        email: email
+        email: email,
+        locale: locale
     });
-    
     subscription.save((err, results) => {
         if(err) {
             console.log('Database Error: ' + err);

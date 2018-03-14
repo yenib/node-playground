@@ -2,7 +2,9 @@ const env = process.env.NODE_ENV || "dev";
 
 const dev = {
     app: {
-        port: parseInt(process.env.DEV_APP_PORT) || 3000
+        port: parseInt(process.env.DEV_APP_PORT) || 3000,
+        translations: ['EN', 'JP', 'KR'],
+        translationsDefault: 'EN'
     },
     db: {
         host: process.env.DEV_DB_HOST || 'localhost',
@@ -16,7 +18,9 @@ const dev = {
 
 const prod = {
     app: {
-        port: parseInt(process.env.PROD_APP_PORT)
+        port: parseInt(process.env.PROD_APP_PORT),
+        translations: ['EN', 'JP', 'KR'],
+        translationsDefault: 'EN'
     },
     db: {
         host: process.env.PROD_DB_HOST,
