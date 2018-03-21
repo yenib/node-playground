@@ -13,6 +13,10 @@ const dev = {
         user: process.env.DEV_DB_USERNAME,
         password: process.env.DEV_DB_PWD,
         connectStr: process.env.DEV_DB_CONN_STR
+    },
+    apis: {
+        linkedInClientId: process.env.DEV_IN_CLIENT_ID,
+        linkedInClientSecret: process.env.DEV_IN_CLIENT_SECRET
     }
 };
 

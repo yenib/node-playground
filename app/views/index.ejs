@@ -29,6 +29,10 @@
         <input type="text" id="name" class="form-control" placeholder="Full Name">
         <button class="btn btn-lg btn-primary btn-block" type="submit">Subscribe</button>
       </form>  
+      <div>
+        <br>
+        <a href="https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=<%= inClientId %>&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fin&state=<%= csrfToken %>&scope=r_basicprofile%20r_network" id="li-connect" class="btn btn-success">Invite friends from LinkedIn</a>
+      </div>
     </div>  
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -53,7 +57,7 @@
           .fail(function(jqXHR) {
             alert(jqXHR.responseJSON.errMessage);
           });
-        });  
+        });
       });  
     </script>
   </body>
