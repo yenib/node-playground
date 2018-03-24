@@ -16,7 +16,11 @@ const dev = {
     },
     apis: {
         linkedInClientId: process.env.DEV_IN_CLIENT_ID,
-        linkedInClientSecret: process.env.DEV_IN_CLIENT_SECRET
+        linkedInClientSecret: process.env.DEV_IN_CLIENT_SECRET,
+
+        googleClientId: process.env.DEV_GOOGLE_CLIENT_ID,
+        googleClientSecret: process.env.DEV_GOOGLE_CLIENT_SECRET,
+        googleCallbackUrl: 'http://localhost:3000/auth/google/callback'
     }
 };
 
@@ -39,5 +43,6 @@ const config = {
     dev,
     prod
 };
-   
+
+
 module.exports = config[env];

@@ -8,8 +8,11 @@ const helmet = require('helmet');
 
 //LinkedIn auth
 const request = require('request');
+const passport = require('passport');
 
+const socialAuth = require('./social-auth');
 const subscriptionController = require('./controllers/subscriptionController');  
+
 
 const app = express();
 
@@ -25,6 +28,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet());
 app.use(cors());
 
+socialAuth(passport);
+app.use(passport.initialize());
 
 // Routes
 app.get('/', (req, res) => {
@@ -59,7 +64,35 @@ app.get('/auth/in', (req, res, next) => {
   }
 
   getConnectionsFromLinkedIn(req.query.code, res, next);
-});  
+});
+
+// Go to this url to start invite flow. Add it to a button in the view on production env
+// Requires Google People API and Google+ API been enabled on Developer Console
+app.get('/auth/google', passport.authenticate('google', {
+  scope: ['https://www.googleapis.com/auth/contacts.readonly', 'email', 'profile']
+}));
+
+
+// Disabling session because user info won't be needed further ahead
+app.get('/auth/google/callback', 
+passport.authenticate('google', { session: false }),
+(req, res, next) => {
+  console.log('Whats coming on profile?');
+  console.log(req.user.profile);
+  
+  getUserContacts(req.user.accessToken, (err, contactList) => {
+    if(err) {
+      let e = new Error(err.message);
+      e.status = 500;
+      next(e);
+      return;
+    }
+    res.status(200).send({
+      contacts: contactList
+    });
+  });   
+});
+
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -82,6 +115,7 @@ app.use((err, req, res, next) => {
 var server = app.listen(config.app.port, function() {
   console.log('Listening on port ' + config.app.port);
 });
+
 
 function getConnectionsFromLinkedIn(authCode, res, next) {
   // Exchange Authorization Code for an Access Token
@@ -127,5 +161,66 @@ function getConnectionsFromLinkedIn(authCode, res, next) {
           rawConnRes: response2
         });
       });
-    }); 
+    });
 }
+
+
+function getUserContacts(accessToken, callback) {
+  const options = {
+    url: 'https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses&sortOrder=FIRST_NAME_ASCENDING',
+    headers: {
+      'Authorization': 'Bearer ' + accessToken
+    }
+  };
+  request(options, (error, response, body) => {
+    if (error || response.statusCode != 200) {
+      callback(new Error('Error while requesting contacts'), null);
+    } else {
+      const connsResponse = JSON.parse(body);
+      let fullContactsInfo = [];
+      connsResponse.connections.forEach( person => {
+        if(person.emailAddresses) {
+          // capturing all names and email addresses here
+          const contact = {
+            names: person.names,
+            emails: person.emailAddresses
+          };
+          fullContactsInfo.push(contact);
+        } else {
+          console.log('There is no email for this person ' + person.names[0].displayName);
+        }
+      });
+      
+      const representContacts = extractRepresentativeContacts(fullContactsInfo);
+
+      callback(null, representContacts);
+    }
+  });
+}
+
+function extractRepresentativeContacts(contactsArr) {
+  let contacts = [];
+  contactsArr.forEach( (contact)=> {
+    let representativeName, representativeEmail;
+    
+    for(let i=0; i<contact.names.length; i++) {
+      if(contact.names[i].metadata.primary) {
+        representativeName = contact.names[i].displayName;
+        break;
+      }
+    }
+
+    for(let i=0; i<contact.emails.length; i++) {
+      if(contact.emails[i].metadata.primary) {
+        representativeEmail = contact.emails[i].value;
+        break;
+      }
+    }
+
+    contacts.push({
+      name: representativeName,
+      email: representativeEmail
+    });
+  });
+  return contacts;
+}  
